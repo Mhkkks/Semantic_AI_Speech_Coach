@@ -312,22 +312,27 @@ def keyword_metrics(ref_set, hyp_set):
 # SEMANTIC SIMILARITY
 # ============================================================
 
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+semantic_model = SentenceTransformer(
+    "all-MiniLM-L6-v2"
+)
+
 def compute_semantic_similarity(ref_text, hyp_text):
 
-    vectorizer = TfidfVectorizer(
-        stop_words='english'
+    embeddings = semantic_model.encode(
+        [ref_text, hyp_text]
     )
 
-    X = vectorizer.fit_transform([
-        ref_text,
-        hyp_text
-    ])
-
-    sim = cosine_similarity(X[0], X[1])[0][0]
+    sim = cosine_similarity(
+        [embeddings[0]],
+        [embeddings[1]]
+    )[0][0]
 
     meaning_drift = 1 - sim
 
-    return sim, meaning_drift
+    return float(sim), float(meaning_drift)
 
 
 # ============================================================
@@ -951,6 +956,10 @@ def run_misinformation_pipeline(csv_path):
 # )
 def analyze_single_misinfo(reference_text, spoken_text):
 
+    ref_words = set(reference_text.lower().split())
+    hyp_words = set(spoken_text.lower().split())
+
+    recall = len(ref_words & hyp_words) / len(ref_words)
     semantic_similarity, drift = \
         compute_semantic_similarity(
             reference_text,
@@ -958,9 +967,9 @@ def analyze_single_misinfo(reference_text, spoken_text):
         )
 
     mas = compute_mas(
-        0.8,
-        semantic_similarity
-    )
+    recall,
+    semantic_similarity
+)
 
     return {
         "semantic_similarity": semantic_similarity,

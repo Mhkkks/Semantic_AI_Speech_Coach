@@ -115,8 +115,12 @@ transformation = jiwer.Compose([
 # ============================================================
 # MAIN WER FUNCTION
 # ============================================================
-
 def compute_wer(reference_text, hypothesis_text):
+    return jiwer.wer(reference_text, hypothesis_text)
+
+#def compute_wer(reference_text, hypothesis_text):
+
+
 
     reference_text = do_sanitize(
         reference_text

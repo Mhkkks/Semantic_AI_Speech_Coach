@@ -811,10 +811,29 @@ def run_complete_stance_pipeline(csv_path):
     save_results(df)
 
     return df
-def analyze_single_stance(reference_text, spoken_text):
+
+stance_classifier = load_zero_shot_model()
+
+def analyze_single_stance(
+    reference_text,
+    spoken_text
+):
+
+    ref = predict_zero_shot_stance(
+        reference_text,
+        stance_classifier
+    )
+
+    hyp = predict_zero_shot_stance(
+        spoken_text,
+        stance_classifier
+    )
 
     return {
-        "reference_stance": "supportive",
-        "spoken_stance": "critical",
-        "stance_flip": True
+
+        "reference_stance": ref,
+
+        "spoken_stance": hyp,
+
+        "stance_flip": ref != hyp
     }

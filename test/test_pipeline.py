@@ -1,14 +1,12 @@
-from pipeline import analyze_speech
+from backend.pipeline import analyze_speech
 
-reference = """
-I strongly support renewable energy.
-"""
+reference = "There is no evidence of election fraud"
 
-audio_path = "sample.wav"
+spoken = "There is evidence of election fraud"
 
 result = analyze_speech(
     reference,
-    audio_path
+    spoken
 )
 
 print(result)

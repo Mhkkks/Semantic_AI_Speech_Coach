@@ -1,17 +1,10 @@
-from speech_to_text import transcribe_audio
-from wer_utils import compute_wer
+from backend.wer_utils import compute_wer
+from backend.sentiment import analyze_single_sentiment
+from backend.stance import analyze_single_stance
+from backend.misinfo import analyze_single_misinfo
 
-from sentiment import analyze_single_sentiment
-from stance import analyze_single_stance
-from misinfo import analyze_single_misinfo
 
-def analyze_speech(reference_text, audio_path):
-
-    # --------------------------------
-    # TRANSCRIBE
-    # --------------------------------
-
-    spoken_text = transcribe_audio(audio_path)
+def analyze_speech(reference_text, spoken_text):
 
     # --------------------------------
     # WER
@@ -48,6 +41,23 @@ def analyze_speech(reference_text, audio_path):
         reference_text,
         spoken_text
     )
+
+    # --------------------------------
+    # ADJUSTED MAS
+    # --------------------------------
+
+    if stance_results["stance_flip"]:
+
+        adjusted_mas = max(
+            0,
+            misinfo_results["mas_score"] - 0.30
+        )
+
+    else:
+
+        adjusted_mas = misinfo_results["mas_score"]
+
+    misinfo_results["adjusted_mas"] = adjusted_mas
 
     # --------------------------------
     # FINAL OUTPUT

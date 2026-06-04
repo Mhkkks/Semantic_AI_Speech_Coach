@@ -4,9 +4,9 @@
 # MINIMUM MODIFICATIONS FROM ORIGINAL NOTEBOOK
 # ============================================================
 
-import os
 import warnings
 warnings.filterwarnings("ignore")
+from transformers import pipeline
 
 import numpy as np
 import pandas as pd
@@ -744,17 +744,29 @@ if __name__ == "__main__":
     print("\nFINAL RESULTS\n")
 
     print(results)
-def analyze_single_sentiment(reference_text, spoken_text):
 
-    ref_emb = get_distilbert_embedding(reference_text)
 
-    hyp_emb = get_distilbert_embedding(spoken_text)
+sentiment_classifier = pipeline(
+    "sentiment-analysis"
+)
 
-    # temporary sentiment scoring logic
-    # can use cosine or classifier later
+def analyze_single_sentiment(
+    reference_text,
+    spoken_text
+):
+
+    ref = sentiment_classifier(reference_text)[0]
+
+    hyp = sentiment_classifier(spoken_text)[0]
 
     return {
-        "reference_sentiment": "positive",
-        "spoken_sentiment": "neutral",
-        "sentiment_shift": True
+
+        "reference_sentiment":
+            ref["label"],
+
+        "spoken_sentiment":
+            hyp["label"],
+
+        "sentiment_shift":
+            ref["label"] != hyp["label"]
     }
